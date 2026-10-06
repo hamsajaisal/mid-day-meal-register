@@ -1,0 +1,57 @@
+{
+  "name": "mid-day-meal-register",
+  "version": "1.0.0",
+  "description": "Accessible Double-Entry Accounts Register for Mid Day Meal Scheme",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node test/calculations.test.js",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --win",
+    "build:win": "electron-builder --win nsis"
+  },
+  "build": {
+    "appId": "org.school.middaymeal",
+    "productName": "Mid Day Meal Register",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Mid Day Meal Register",
+      "uninstallDisplayName": "Mid Day Meal Register"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "package.json"
+    ]
+  },
+  "keywords": [
+    "mid-day-meal",
+    "accounting",
+    "register",
+    "electron",
+    "accessibility"
+  ],
+  "author": "School Education Department",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^34.0.0",
+    "electron-builder": "^25.1.8"
+  }
+}

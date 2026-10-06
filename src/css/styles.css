@@ -1,0 +1,804 @@
+/* ==========================================================================
+   Mid Day Meal Double-Entry Register - Professional Design System
+   ========================================================================== */
+
+:root {
+    --bg-app: #f1f5f9;
+    --bg-card: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --border-subtle: #cbd5e1;
+    --border-strong: #94a3b8;
+
+    /* Theme Colors for Receipts (Emerald / Teal) */
+    --rcpt-primary: #0f766e;
+    --rcpt-dark: #134e4a;
+    --rcpt-light: #f0fdf4;
+    --rcpt-border: #86efac;
+    --rcpt-accent: #059669;
+
+    /* Theme Colors for Payments (Terracotta / Coral / Amber) */
+    --pay-primary: #c2410c;
+    --pay-dark: #7c2d12;
+    --pay-light: #fff7ed;
+    --pay-border: #fed7aa;
+    --pay-accent: #ea580c;
+
+    /* Status Colors */
+    --status-success-bg: #ecfdf5;
+    --status-success-text: #065f46;
+    --status-success-border: #34d399;
+    --status-error-bg: #fef2f2;
+    --status-error-text: #991b1b;
+    --status-error-border: #f87171;
+
+    /* Auto-calculated field style */
+    --calc-bg: #f8fafc;
+    --calc-text: #1e293b;
+    --focus-ring: #0284c7;
+}
+
+/* Base reset */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Screen reader only utility class */
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* Focus styles for maximum accessibility */
+button:focus-visible, 
+input:focus-visible, 
+select:focus-visible, 
+a:focus-visible {
+    outline: 3px solid var(--focus-ring) !important;
+    outline-offset: 2px !important;
+}
+
+/* ==========================================================================
+   Header & Action Toolbar
+   ========================================================================== */
+
+.app-header {
+    background: #ffffff;
+    border-bottom: 2px solid var(--border-subtle);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.header-content {
+    max-width: 1700px;
+    margin: 0 auto;
+    padding: 12px 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.title-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.badge-scheme {
+    display: inline-block;
+    align-self: flex-start;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background-color: #0284c7;
+    color: #ffffff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+}
+
+.title-group h1 {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+}
+
+.title-group .subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #f8fafc;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+}
+
+.control-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.control-item input {
+    padding: 5px 10px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    background: #ffffff;
+    color: #0f172a;
+    width: 125px;
+}
+
+/* Toolbar Buttons */
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+}
+
+.btn-primary {
+    background-color: #0284c7;
+    color: #ffffff;
+    border-color: #0369a1;
+}
+.btn-primary:hover {
+    background-color: #0369a1;
+}
+
+.btn-secondary {
+    background-color: #334155;
+    color: #ffffff;
+}
+.btn-secondary:hover {
+    background-color: #1e293b;
+}
+
+.btn-outline {
+    background-color: #ffffff;
+    color: #334155;
+    border-color: var(--border-strong);
+}
+.btn-outline:hover {
+    background-color: #f1f5f9;
+}
+
+.btn-outline-alt {
+    background-color: #f8fafc;
+    color: #64748b;
+    border-color: var(--border-subtle);
+    font-size: 0.8rem;
+}
+.btn-outline-alt:hover {
+    color: #0f172a;
+}
+
+/* Date Navigator */
+.date-navigator {
+    max-width: 1700px;
+    margin: 0 auto;
+    padding: 8px 24px 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    border-top: 1px solid #f1f5f9;
+}
+
+.date-nav-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-arrow {
+    background: #e2e8f0;
+    border: 1px solid var(--border-strong);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+}
+.nav-arrow:hover {
+    background: #cbd5e1;
+}
+
+.current-date-badge select {
+    padding: 6px 12px;
+    border: 2px solid #0284c7;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    background: #ffffff;
+    color: #0f172a;
+    cursor: pointer;
+}
+
+.balance-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 9999px;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.balance-status.is-balanced {
+    background-color: var(--status-success-bg);
+    color: var(--status-success-text);
+    border: 1.5px solid var(--status-success-border);
+}
+
+.balance-status.is-unbalanced {
+    background-color: var(--status-error-bg);
+    color: var(--status-error-text);
+    border: 1.5px solid var(--status-error-border);
+}
+
+/* ==========================================================================
+   Ledger Book (Physical Dual Page Concept)
+   ========================================================================== */
+
+.ledger-book-container {
+    max-width: 1700px;
+    margin: 20px auto;
+    padding: 0 24px;
+    width: 100%;
+    flex: 1;
+}
+
+.ledger-book {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    border: 1px solid var(--border-subtle);
+    overflow: hidden;
+    position: relative;
+}
+
+/* Subtle book spine dividing line */
+.ledger-book::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    background: linear-gradient(to bottom, #cbd5e1, #94a3b8, #cbd5e1);
+    transform: translateX(-50%);
+    z-index: 10;
+}
+
+.ledger-page {
+    padding: 24px;
+    background: #ffffff;
+}
+
+.page-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 3px solid;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+}
+
+.page-receipts .page-header {
+    border-color: var(--rcpt-primary);
+}
+
+.page-payments .page-header {
+    border-color: var(--pay-primary);
+}
+
+.page-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+}
+
+.page-receipts .page-title {
+    color: var(--rcpt-primary);
+}
+
+.page-payments .page-title {
+    color: var(--pay-primary);
+}
+
+.page-number {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.currency-tag {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Ledger Tables
+   ========================================================================== */
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.ledger-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.ledger-table th {
+    background: #f8fafc;
+    color: #1e293b;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 10px 8px;
+    border-bottom: 2px solid var(--border-strong);
+    border-top: 1px solid var(--border-subtle);
+}
+
+.page-receipts th {
+    background: var(--rcpt-light);
+    color: var(--rcpt-dark);
+}
+
+.page-payments th {
+    background: var(--pay-light);
+    color: var(--pay-dark);
+}
+
+.ledger-table td {
+    padding: 8px;
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: middle;
+}
+
+.date-cell {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.particulars-cell {
+    color: var(--text-primary);
+}
+
+.particulars-cell strong {
+    font-size: 0.95rem;
+}
+
+.helper-text {
+    display: block;
+    font-size: 0.76rem;
+    color: var(--text-muted);
+}
+
+.formula-caption {
+    font-size: 0.74rem;
+    color: #0369a1;
+    font-style: italic;
+}
+
+.amount-cell {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 0.98rem;
+    font-weight: 600;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.amount-cell.muted {
+    color: var(--text-muted);
+}
+
+/* Input Fields styling */
+.amount-input-cell {
+    text-align: right;
+}
+
+.input-cell {
+    width: 100%;
+    max-width: 130px;
+    padding: 6px 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-align: right;
+    font-family: inherit;
+    border: 1.5px solid var(--border-strong);
+    border-radius: 6px;
+    background-color: #ffffff;
+    color: #0f172a;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.input-cell:focus {
+    border-color: var(--focus-ring);
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+}
+
+.input-required {
+    border-color: #0284c7;
+    background-color: #f0f9ff;
+}
+
+.input-text {
+    width: 100%;
+    padding: 5px 8px;
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    font-size: 0.88rem;
+}
+
+/* Row types */
+.row-subtotal {
+    background-color: #f8fafc;
+    border-top: 1.5px solid var(--border-strong);
+    border-bottom: 1.5px solid var(--border-strong);
+}
+
+.highlight-calc {
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.row-highlight {
+    background-color: #f1f5f9;
+    font-weight: 700;
+}
+
+.row-grand-total {
+    border-top: 2px solid var(--border-strong);
+    border-bottom: 3px double var(--border-strong);
+    font-weight: 800;
+}
+
+.page-receipts .row-grand-total {
+    background-color: var(--rcpt-light);
+    color: var(--rcpt-dark);
+}
+
+.page-payments .row-grand-total {
+    background-color: var(--pay-light);
+    color: var(--pay-dark);
+}
+
+.row-grand-total td {
+    padding: 12px 8px;
+}
+
+.row-combined-total {
+    background: #0f172a;
+    color: #ffffff;
+    font-weight: 800;
+}
+
+.row-combined-total td {
+    padding: 10px 14px;
+    font-size: 1.05rem;
+}
+
+/* Actions inside Payments */
+.row-action-bar td {
+    padding: 10px 8px;
+    background-color: #f8fafc;
+}
+
+.expense-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.btn-warm {
+    background-color: var(--pay-accent);
+    color: #ffffff;
+    border: none;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.btn-warm:hover {
+    background-color: var(--pay-dark);
+}
+
+.inline-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.input-micro {
+    width: 100px;
+    padding: 4px 6px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: 4px;
+    text-align: right;
+    font-weight: 700;
+}
+
+.btn-row-del {
+    background: transparent;
+    color: #dc2626;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+.btn-row-del:hover {
+    background: #fee2e2;
+}
+
+.bank-credit-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-micro {
+    background: #e2e8f0;
+    border: 1px solid var(--border-strong);
+    font-size: 0.72rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.btn-micro:hover {
+    background: #cbd5e1;
+}
+
+/* Sweep item list */
+.sweep-item-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.sweep-item-row input[type="text"] {
+    flex: 1;
+    font-size: 0.8rem;
+    padding: 3px 6px;
+}
+
+.sweep-item-row input[type="number"] {
+    width: 110px;
+    font-size: 0.8rem;
+    padding: 3px 6px;
+    text-align: right;
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   Month End Summary Panel
+   ========================================================================== */
+
+.month-summary-card {
+    background: #ffffff;
+    border: 2px solid #0284c7;
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 24px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.summary-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+}
+
+.summary-header h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.btn-close {
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    color: #64748b;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.summary-box {
+    background: #f8fafc;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.summary-box h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #334155;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 6px;
+}
+
+.stat-line {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.stat-line.total {
+    font-weight: 800;
+    font-size: 1rem;
+    color: #0f172a;
+    border-top: 1px dashed var(--border-strong);
+    padding-top: 6px;
+}
+
+.stat-line.highlight {
+    background: #ecfdf5;
+    padding: 6px 8px;
+    border-radius: 4px;
+    color: #065f46;
+    font-weight: 800;
+    font-size: 1.05rem;
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+
+.app-footer {
+    background: #ffffff;
+    border-top: 1px solid var(--border-subtle);
+    padding: 12px 24px;
+    margin-top: auto;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.keyboard-legend {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+kbd {
+    background-color: #f1f5f9;
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #0f172a;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* ==========================================================================
+   Print Stylesheet (Official Physical Book Output)
+   ========================================================================== */
+
+@media print {
+    body {
+        background: #ffffff !important;
+        font-size: 10pt;
+    }
+
+    .app-header,
+    .app-footer,
+    .expense-actions,
+    .btn-row-del,
+    .btn-micro,
+    #btn-add-sweep,
+    .date-navigator {
+        display: none !important;
+    }
+
+    .ledger-book-container {
+        margin: 0 !important;
+        padding: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .ledger-book {
+        box-shadow: none !important;
+        border: none !important;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10mm;
+        page-break-inside: avoid;
+    }
+
+    .ledger-book::before {
+        display: none !important;
+    }
+
+    .ledger-page {
+        padding: 0 !important;
+    }
+
+    .input-cell, .input-text, .input-micro {
+        border: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        font-size: 10pt !important;
+    }
+}

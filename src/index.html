@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mid Day Meal Scheme - Double-Entry Register</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Screen Reader Live Announcements (polite) -->
+    <div id="sr-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Header & Action Bar -->
+    <header role="banner" class="app-header">
+        <div class="header-content">
+            <div class="title-group">
+                <span class="badge-scheme">PM POSHAN / MDM</span>
+                <h1 id="app-title">Mid Day Meal Accounts Register</h1>
+                <p class="subtitle">Official Double-Entry Cash & Bank Ledger</p>
+            </div>
+
+            <div class="header-controls">
+                <div class="control-item">
+                    <label for="month-year-select">Month & Year:</label>
+                    <input type="text" id="month-year-select" value="August 2025" aria-label="Month and year of register">
+                </div>
+                <div class="control-item">
+                    <label for="initial-bank-opening">Month Start Bank (₹):</label>
+                    <input type="number" id="initial-bank-opening" value="6191" aria-label="Month initial starting bank balance in rupees">
+                </div>
+            </div>
+
+            <nav class="toolbar" aria-label="Main Actions">
+                <button type="button" id="btn-calculate" class="btn btn-primary" title="Calculate current day and entire month (Alt+C)">
+                    <span class="btn-icon">⚡</span> Calculate All
+                </button>
+                <button type="button" id="btn-new-day" class="btn btn-secondary" title="Add a new day entry (Alt+N)">
+                    <span class="btn-icon">➕</span> Add New Day
+                </button>
+                <button type="button" id="btn-toggle-summary" class="btn btn-secondary" title="View Month Summary (Alt+M)">
+                    <span class="btn-icon">📊</span> Month Summary
+                </button>
+                <button type="button" id="btn-print" class="btn btn-outline" title="Print or Export PDF (Ctrl+P)">
+                    <span class="btn-icon">🖨️</span> Print / PDF
+                </button>
+                <button type="button" id="btn-save" class="btn btn-outline" title="Save Backup Data (Alt+S)">
+                    <span class="btn-icon">💾</span> Save
+                </button>
+                <button type="button" id="btn-load-sample" class="btn btn-outline-alt" title="Reload August 2025 PDF Data">
+                    ↺ Reset Sample
+                </button>
+            </nav>
+        </div>
+
+        <!-- Date Navigator Bar -->
+        <div class="date-navigator" role="navigation" aria-label="Date Selection">
+            <div class="date-nav-controls">
+                <button type="button" id="btn-prev-day" class="nav-arrow" aria-label="Go to previous date entry">◀ Previous Day</button>
+                <div class="current-date-badge">
+                    <label for="date-selector" class="sr-only">Select Day Entry</label>
+                    <select id="date-selector" aria-label="Select existing date to edit"></select>
+                </div>
+                <button type="button" id="btn-next-day" class="nav-arrow" aria-label="Go to next date entry">Next Day ▶</button>
+            </div>
+            
+            <div id="balance-badge" class="balance-status is-balanced" role="status" aria-label="Ledger status">
+                <span class="status-indicator">✔</span>
+                <span id="balance-text">Ledger Balanced (Grand Totals Match)</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Register Book Layout (Two Open Pages) -->
+    <main class="ledger-book-container" role="main" id="main-content">
+        <div class="ledger-book">
+            
+            <!-- LEFT PAGE: RECEIPTS (Emerald / Blue Scheme) -->
+            <section class="ledger-page page-receipts" aria-labelledby="receipts-heading">
+                <div class="page-header">
+                    <span class="page-number" aria-hidden="true">Page L</span>
+                    <h2 id="receipts-heading" class="page-title">RECEIPTS</h2>
+                    <span class="currency-tag">All values in INR (₹)</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="ledger-table receipts-table" aria-label="Receipts Ledger Table">
+                        <thead>
+                            <tr>
+                                <th scope="col" style="width: 18%;">DATE</th>
+                                <th scope="col" style="width: 42%;">PARTICULARS</th>
+                                <th scope="col" style="width: 10%;">RCPT NO</th>
+                                <th scope="col" style="width: 15%; text-align: right;">BANK (₹)</th>
+                                <th scope="col" style="width: 15%; text-align: right;">CASH (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Opening Balance Row (Auto carried forward) -->
+                            <tr class="row-auto-calc" id="row-rcpt-opening">
+                                <td id="cell-rcpt-date" class="date-cell">01/08/2025</td>
+                                <td class="particulars-cell">
+                                    <strong>Opening Balance</strong>
+                                    <span class="sr-only">(Carried forward from previous day's balance in hand)</span>
+                                </td>
+                                <td>—</td>
+                                <td class="amount-cell" id="val-rcpt-open-bank">6,191</td>
+                                <td class="amount-cell" id="val-rcpt-open-cash">0</td>
+                            </tr>
+
+                            <!-- Advance from HM Row (Editable Cash Inflow) -->
+                            <tr class="row-editable" id="row-rcpt-advance">
+                                <td></td>
+                                <td class="particulars-cell">
+                                    <label for="input-advance-hm"><strong>Advance from HM</strong></label>
+                                    <span class="helper-text">(Cash given by HM for today's expenses)</span>
+                                </td>
+                                <td>—</td>
+                                <td class="amount-cell muted">—</td>
+                                <td class="amount-input-cell">
+                                    <input type="number" id="input-advance-hm" class="input-cell input-required" 
+                                           placeholder="0" aria-label="Advance from HM in cash" step="any">
+                                </td>
+                            </tr>
+
+                            <!-- Bank Credit / Fund to Bank Row -->
+                            <tr class="row-editable" id="row-rcpt-fund-bank">
+                                <td></td>
+                                <td class="particulars-cell">
+                                    <div class="bank-credit-header">
+                                        <label for="input-fund-bank"><strong>Fund To Bank</strong></label>
+                                        <button type="button" id="btn-add-sweep" class="btn-micro" aria-label="Add additional sweep out or bank credit row">+ Add Sweep</button>
+                                    </div>
+                                    <span class="helper-text">(State/Central funds or sweep-outs credited to bank)</span>
+                                    <div id="additional-bank-credits"></div>
+                                </td>
+                                <td>—</td>
+                                <td class="amount-input-cell">
+                                    <input type="number" id="input-fund-bank" class="input-cell" 
+                                           placeholder="0" aria-label="Fund to bank amount credited in bank" step="any">
+                                </td>
+                                <td class="amount-cell muted">—</td>
+                            </tr>
+
+                            <!-- Total (Receipts) Row -->
+                            <tr class="row-subtotal">
+                                <td></td>
+                                <td class="particulars-cell"><strong>TOTAL (Receipts)</strong></td>
+                                <td>—</td>
+                                <td class="amount-cell highlight-calc" id="val-rcpt-tot-bank">0</td>
+                                <td class="amount-cell highlight-calc" id="val-rcpt-tot-cash">0</td>
+                            </tr>
+
+                            <!-- Cash In Hand Row -->
+                            <tr class="row-highlight">
+                                <td></td>
+                                <td class="particulars-cell">
+                                    <strong>CASH IN HAND</strong>
+                                    <div class="formula-caption">Bank = Opening + Fund | Cash = Opening + Advance</div>
+                                </td>
+                                <td>—</td>
+                                <td class="amount-cell" id="val-rcpt-cih-bank">6,191</td>
+                                <td class="amount-cell" id="val-rcpt-cih-cash">0</td>
+                            </tr>
+
+                            <!-- Grand Total (Receipts) Row -->
+                            <tr class="row-grand-total">
+                                <td></td>
+                                <td class="particulars-cell"><strong>GRAND TOTAL</strong></td>
+                                <td>—</td>
+                                <td class="amount-cell" id="val-rcpt-gt-bank">6,191</td>
+                                <td class="amount-cell" id="val-rcpt-gt-cash">0</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="row-combined-total">
+                                <td colspan="3"><strong>Receipts Combined Grand Total:</strong></td>
+                                <td colspan="2" class="amount-cell" id="val-rcpt-gt-combined">₹ 6,191</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </section>
+
+
+            <!-- RIGHT PAGE: PAYMENTS (Warm Coral / Amber Scheme) -->
+            <section class="ledger-page page-payments" aria-labelledby="payments-heading">
+                <div class="page-header">
+                    <span class="page-number" aria-hidden="true">Page R</span>
+                    <h2 id="payments-heading" class="page-title">PAYMENTS</h2>
+                    <span class="currency-tag">All values in INR (₹)</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="ledger-table payments-table" aria-label="Payments Ledger Table">
+                        <thead>
+                            <tr>
+                                <th scope="col" style="width: 18%;">DATE</th>
+                                <th scope="col" style="width: 42%;">PARTICULARS</th>
+                                <th scope="col" style="width: 12%;">VOUCHER</th>
+                                <th scope="col" style="width: 14%; text-align: right;">BANK (₹)</th>
+                                <th scope="col" style="width: 14%; text-align: right;">CASH (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payments-tbody">
+                            <!-- Expense rows dynamically populated here -->
+                        </tbody>
+                        <tbody>
+                            <!-- Add Row Button & Bank Withdrawal -->
+                            <tr class="row-action-bar">
+                                <td colspan="5">
+                                    <div class="expense-actions">
+                                        <button type="button" id="btn-add-expense-row" class="btn btn-sm btn-warm" title="Add another expense row (Alt+A)">
+                                            ➕ Add Expense Item
+                                        </button>
+                                        <div class="inline-field">
+                                            <label for="input-bank-withdrawal">Bank Withdrawal (if any): ₹</label>
+                                            <input type="number" id="input-bank-withdrawal" class="input-micro" placeholder="0" aria-label="Withdrawal from bank">
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Payments Total Row -->
+                            <tr class="row-subtotal">
+                                <td></td>
+                                <td class="particulars-cell"><strong>TOTAL (Payments)</strong></td>
+                                <td>—</td>
+                                <td class="amount-cell highlight-calc" id="val-pay-tot-bank">0</td>
+                                <td class="amount-cell highlight-calc" id="val-pay-tot-cash">0</td>
+                            </tr>
+
+                            <!-- Balance In Hand Row -->
+                            <tr class="row-highlight">
+                                <td></td>
+                                <td class="particulars-cell">
+                                    <strong>BALANCE IN HAND</strong>
+                                    <div class="formula-caption">Bank = CashInHand - Withdrawal | Cash = CashInHand - Expenses</div>
+                                </td>
+                                <td>—</td>
+                                <td class="amount-cell" id="val-pay-bih-bank">6,191</td>
+                                <td class="amount-cell" id="val-pay-bih-cash">0</td>
+                            </tr>
+
+                            <!-- Grand Total (Payments) Row -->
+                            <tr class="row-grand-total">
+                                <td></td>
+                                <td class="particulars-cell"><strong>GRAND TOTAL</strong></td>
+                                <td>—</td>
+                                <td class="amount-cell" id="val-pay-gt-bank">6,191</td>
+                                <td class="amount-cell" id="val-pay-gt-cash">0</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="row-combined-total">
+                                <td colspan="3"><strong>Payments Combined Grand Total:</strong></td>
+                                <td colspan="2" class="amount-cell" id="val-pay-gt-combined">₹ 6,191</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- Month End Summary Modal / View -->
+        <section id="month-summary-panel" class="month-summary-card" aria-labelledby="summary-heading" style="display: none;">
+            <div class="summary-header">
+                <h2 id="summary-heading">Month-End Accounts Summary & Reconciliation</h2>
+                <button type="button" id="btn-close-summary" class="btn-close" aria-label="Close month summary">✕</button>
+            </div>
+            <div class="summary-grid">
+                <div class="summary-box">
+                    <h3>AEO Admitted for Month</h3>
+                    <div class="summary-input-wrap">
+                        <label for="input-aeo-admitted">Amount (₹):</label>
+                        <input type="number" id="input-aeo-admitted" value="172074" class="input-cell" aria-label="AEO admitted amount for the month">
+                    </div>
+                </div>
+                <div class="summary-box">
+                    <h3>Total of the Month</h3>
+                    <div class="stat-line"><span>Receipts (Bank):</span> <strong id="sum-rcpt-bank">₹ 0</strong></div>
+                    <div class="stat-line"><span>Receipts (Cash):</span> <strong id="sum-rcpt-cash">₹ 0</strong></div>
+                    <div class="stat-line total"><span>Total Receipts:</span> <strong id="sum-rcpt-total">₹ 0</strong></div>
+                    <hr>
+                    <div class="stat-line"><span>Payments (Bank):</span> <strong id="sum-pay-bank">₹ 0</strong></div>
+                    <div class="stat-line"><span>Payments (Cash):</span> <strong id="sum-pay-cash">₹ 0</strong></div>
+                    <div class="stat-line total"><span>Total Payments:</span> <strong id="sum-pay-total">₹ 0</strong></div>
+                </div>
+                <div class="summary-box">
+                    <h3>Closing Balances</h3>
+                    <div class="stat-line"><span>Closing Bank Balance:</span> <strong id="sum-close-bank">₹ 0</strong></div>
+                    <div class="stat-line"><span>Closing Cash Balance:</span> <strong id="sum-close-cash">₹ 0</strong></div>
+                    <div class="stat-line highlight"><span>Balance to HM:</span> <strong id="sum-balance-hm">₹ 0</strong></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Accessible Keyboard Shortcuts Guide -->
+    <footer role="contentinfo" class="app-footer">
+        <div class="keyboard-legend">
+            <span><strong>Keyboard Shortcuts:</strong></span>
+            <kbd>Alt + C</kbd> Calculate All
+            <kbd>Alt + N</kbd> Add New Day
+            <kbd>Alt + A</kbd> Add Expense Row
+            <kbd>Alt + M</kbd> Month Summary
+            <kbd>Ctrl + P</kbd> Print / PDF
+            <kbd>Alt + S</kbd> Save Data
+        </div>
+        <div class="footer-note">
+            Equations verified from official register: <em>Cash in Hand Bank = Opening + Fund</em> | <em>Payments Total = Expenses + Refund</em>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="calculator.js"></script>
+    <script src="js/sampleData.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

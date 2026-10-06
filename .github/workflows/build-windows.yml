@@ -12,6 +12,8 @@ jobs:
   build:
     name: Build Windows Setup Installer (.exe)
     runs-on: windows-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Check out repository
@@ -30,9 +32,7 @@ jobs:
         run: npm test
 
       - name: Build Windows Installer (.exe)
-        run: npm run dist
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --win nsis --publish never
 
       - name: Upload Windows Setup Artifact
         uses: actions/upload-artifact@v4

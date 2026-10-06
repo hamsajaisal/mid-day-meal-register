@@ -4,6 +4,12 @@ An accessible, double-entry cash and bank accounting ledger designed specificall
 
 ---
 
+### 📥 Quick Links
+* 🚀 **[Download Windows Installer (.exe)](https://github.com/hamsajaisal/mid-day-meal-register/releases/download/v1.0.1/Mid.Day.Meal.Register.Setup.1.0.0.exe)**
+* 📖 **[Read the Friendly User Guide (Step-by-Step)](USER_GUIDE.md)**
+
+---
+
 ## 🌟 Key Features
 
 1. **Exact Register Equations Implemented:**

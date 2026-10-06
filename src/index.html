@@ -21,12 +21,16 @@
 
             <div class="header-controls">
                 <div class="control-item">
+                    <label for="school-name-input">School Name:</label>
+                    <input type="text" id="school-name-input" value="Government High School" placeholder="Enter school name" aria-label="School name">
+                </div>
+                <div class="control-item">
                     <label for="month-year-select">Month & Year:</label>
-                    <input type="text" id="month-year-select" value="August 2025" aria-label="Month and year of register">
+                    <input type="text" id="month-year-select" value="October 2026" placeholder="e.g. October 2026" aria-label="Month and year of register">
                 </div>
                 <div class="control-item">
                     <label for="initial-bank-opening">Month Start Bank (₹):</label>
-                    <input type="number" id="initial-bank-opening" value="6191" aria-label="Month initial starting bank balance in rupees">
+                    <input type="number" id="initial-bank-opening" value="0" placeholder="0" aria-label="Month initial starting bank balance in rupees">
                 </div>
             </div>
 
@@ -35,7 +39,10 @@
                     <span class="btn-icon">⚡</span> Calculate All
                 </button>
                 <button type="button" id="btn-new-day" class="btn btn-secondary" title="Add a new day entry (Alt+N)">
-                    <span class="btn-icon">➕</span> Add New Day
+                    <span class="btn-icon">➕</span> Add Day
+                </button>
+                <button type="button" id="btn-new-register" class="btn btn-secondary" title="Start a fresh blank month for any school">
+                    <span class="btn-icon">📄</span> New Month
                 </button>
                 <button type="button" id="btn-toggle-summary" class="btn btn-secondary" title="View Month Summary (Alt+M)">
                     <span class="btn-icon">📊</span> Month Summary
@@ -43,11 +50,14 @@
                 <button type="button" id="btn-print" class="btn btn-outline" title="Print or Export PDF (Ctrl+P)">
                     <span class="btn-icon">🖨️</span> Print / PDF
                 </button>
+                <button type="button" id="btn-open" class="btn btn-outline" title="Open saved register file">
+                    <span class="btn-icon">📂</span> Open
+                </button>
                 <button type="button" id="btn-save" class="btn btn-outline" title="Save Backup Data (Alt+S)">
                     <span class="btn-icon">💾</span> Save
                 </button>
-                <button type="button" id="btn-load-sample" class="btn btn-outline-alt" title="Reload August 2025 PDF Data">
-                    ↺ Reset Sample
+                <button type="button" id="btn-load-sample" class="btn btn-outline-alt" title="Load sample demo data to see how it works">
+                    Load Demo Sample
                 </button>
             </nav>
         </div>

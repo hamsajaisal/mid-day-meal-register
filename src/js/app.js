@@ -4,10 +4,11 @@
 
 // Application State
 let appState = {
-    monthYear: "August 2025",
-    initialBankOpening: 6191,
+    schoolName: "Government High School",
+    monthYear: "October 2026",
+    initialBankOpening: 0,
     initialCashOpening: 0,
-    aeoAdmitted: 172074,
+    aeoAdmitted: 0,
     currentDayIndex: 0,
     days: []
 };
@@ -31,16 +32,16 @@ function announceToSR(message) {
 
 // Initialize Application
 function initApp() {
-    // Load saved data or sample August 2025 data
+    // Load saved data or fresh blank template
     const saved = localStorage.getItem('mdm_register_state');
     if (saved) {
         try {
             appState = JSON.parse(saved);
         } catch (e) {
-            loadDefaultData();
+            loadBlankTemplate();
         }
     } else {
-        loadDefaultData();
+        loadBlankTemplate();
     }
 
     setupEventListeners();
@@ -48,28 +49,35 @@ function initApp() {
     recalculateEntireMonth();
     renderCurrentDay();
 
-    announceToSR(`Mid Day Meal Register ready. Loaded ${appState.days.length} entries for ${appState.monthYear}. Press Alt plus C to calculate, or Tab to navigate.`);
+    announceToSR(`Mid Day Meal Register ready for ${appState.schoolName || 'your school'}. Month: ${appState.monthYear}. Press Alt plus C to calculate, or Tab to navigate.`);
 }
 
-function loadDefaultData() {
+function loadBlankTemplate() {
+    appState = {
+        schoolName: "Government High School",
+        monthYear: "October 2026",
+        initialBankOpening: 0,
+        initialCashOpening: 0,
+        aeoAdmitted: 0,
+        currentDayIndex: 0,
+        days: [
+            {
+                date: "01/10/2026",
+                advanceFromHM: 0,
+                bankCredits: [],
+                expenses: [
+                    { particulars: "For Vegetables", voucherNo: "", cash: 0, bank: 0 }
+                ]
+            }
+        ]
+    };
+    appState.currentDayIndex = 0;
+}
+
+function loadDemoSampleData() {
     if (typeof sampleAugust2025Data !== 'undefined') {
         appState = JSON.parse(JSON.stringify(sampleAugust2025Data));
-    } else {
-        appState = {
-            monthYear: "August 2025",
-            initialBankOpening: 6191,
-            initialCashOpening: 0,
-            aeoAdmitted: 172074,
-            currentDayIndex: 0,
-            days: [
-                {
-                    date: "01/08/2025",
-                    advanceFromHM: 2467,
-                    bankCredits: [],
-                    expenses: [{ particulars: "For Vegetables", voucherNo: "401", cash: 2467, bank: 0 }]
-                }
-            ]
-        };
+        appState.schoolName = "Sample School (From PDF)";
     }
     appState.currentDayIndex = 0;
 }
@@ -77,6 +85,14 @@ function loadDefaultData() {
 // Setup Event Listeners
 function setupEventListeners() {
     // Header inputs
+    const schoolInput = document.getElementById('school-name-input');
+    if (schoolInput) {
+        schoolInput.addEventListener('input', (e) => {
+            appState.schoolName = e.target.value;
+            saveToLocalStorage();
+        });
+    }
+
     document.getElementById('month-year-select').addEventListener('input', (e) => {
         appState.monthYear = e.target.value;
         saveToLocalStorage();
@@ -195,17 +211,30 @@ function setupEventListeners() {
         }
     });
 
-    // Save and Print buttons
+    // Toolbar Action Buttons
     document.getElementById('btn-save').addEventListener('click', exportData);
+    document.getElementById('btn-open').addEventListener('click', openRegisterFile);
     document.getElementById('btn-print').addEventListener('click', handlePrint);
-    document.getElementById('btn-load-sample').addEventListener('click', () => {
-        if (confirm('Reset to original August 2025 register data?')) {
-            loadDefaultData();
+
+    document.getElementById('btn-new-register').addEventListener('click', () => {
+        if (confirm('Start a new blank month register? Any unsaved changes will be cleared.')) {
+            loadBlankTemplate();
             populateDateSelector();
             recalculateEntireMonth();
             renderCurrentDay();
             saveToLocalStorage();
-            announceToSR('Reset to original August 2025 data.');
+            announceToSR('Started fresh blank month register. You can enter details for your school.');
+        }
+    });
+
+    document.getElementById('btn-load-sample').addEventListener('click', () => {
+        if (confirm('Load the August 2025 demonstration sample data?')) {
+            loadDemoSampleData();
+            populateDateSelector();
+            recalculateEntireMonth();
+            renderCurrentDay();
+            saveToLocalStorage();
+            announceToSR('Loaded August 2025 sample demonstration data.');
         }
     });
 
@@ -243,6 +272,10 @@ function handlePrint() {
 
 function exportData() {
     const dataStr = JSON.stringify(appState, null, 2);
+    const safeSchool = (appState.schoolName || 'School').replace(/[^a-zA-Z0-9]/g, '_');
+    const safeMonth = (appState.monthYear || 'Month').replace(/[^a-zA-Z0-9]/g, '_');
+    const fileName = `MDM_${safeSchool}_${safeMonth}.json`;
+
     if (window.electronAPI && window.electronAPI.saveData) {
         window.electronAPI.saveData(dataStr).then(res => {
             if (res.success) {
@@ -255,10 +288,58 @@ function exportData() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `MDM-Register-${appState.monthYear.replace(/\s+/g, '-')}.json`;
+        a.download = fileName;
         a.click();
         URL.revokeObjectURL(url);
         announceToSR('Register backup downloaded.');
+    }
+}
+
+function openRegisterFile() {
+    if (window.electronAPI && window.electronAPI.loadData) {
+        window.electronAPI.loadData().then(res => {
+            if (res && res.success && res.content) {
+                try {
+                    appState = JSON.parse(res.content);
+                    if (!appState.days || !Array.isArray(appState.days)) {
+                        appState.days = [];
+                    }
+                    appState.currentDayIndex = 0;
+                    populateDateSelector();
+                    recalculateEntireMonth();
+                    renderCurrentDay();
+                    saveToLocalStorage();
+                    announceToSR(`Successfully opened register for ${appState.schoolName || 'school'}, ${appState.monthYear}.`);
+                } catch (e) {
+                    alert('Error reading register file: ' + e.message);
+                }
+            }
+        });
+    } else {
+        // Browser file input fallback
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = '.json,application/json';
+        fileInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    appState = JSON.parse(event.target.result);
+                    appState.currentDayIndex = 0;
+                    populateDateSelector();
+                    recalculateEntireMonth();
+                    renderCurrentDay();
+                    saveToLocalStorage();
+                    announceToSR(`Successfully opened register for ${appState.schoolName || 'school'}, ${appState.monthYear}.`);
+                } catch (err) {
+                    alert('Error parsing JSON file: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        };
+        fileInput.click();
     }
 }
 
@@ -366,6 +447,8 @@ function renderCurrentDay() {
     const day = appState.days[appState.currentDayIndex];
     if (!day) return;
 
+    const schoolEl = document.getElementById('school-name-input');
+    if (schoolEl) schoolEl.value = appState.schoolName || '';
     document.getElementById('month-year-select').value = appState.monthYear;
     document.getElementById('initial-bank-opening').value = appState.initialBankOpening;
     document.getElementById('date-selector').value = appState.currentDayIndex;
